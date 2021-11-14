@@ -2,8 +2,8 @@ import time
 import pyupbit
 import datetime
 
-access = "OvOwwzwEKqobRR6Au5Mcm9edKS259pNEWZYV9r6a"
-secret = "5UbxpQKkq3ViFrzFEpKDn6xmzdKXJiYuPGeHx6x9"
+access = "MdynMvOgk5ffioDeYQjb0m1F6tqmXwH2NTwk2D9o"
+secret = "aAIBhYEM36lKeo0xz5iB7TPTFsvKIuRIhpH7mvi7"
 
 def get_target_price(ticker, k):
     """변동성 돌파 전략으로 매수 목표가 조회"""
@@ -32,10 +32,11 @@ def get_balance(ticker):
                 return float(b['balance'])
             else:
                 return 0
+    return 0
 
 def get_current_price(ticker):
     """현재가 조회"""
-    return pyupbit.get_orderbook(tickers=ticker)[0]["orderbook_units"][0]["ask_price"]
+    return pyupbit.get_orderbook(ticker=ticker)["orderbook_units"][0]["ask_price"]
 
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
@@ -48,8 +49,8 @@ while True:
         start_time = get_start_time("KRW-VET")
         end_time = start_time + datetime.timedelta(days=1)
 
-        if start_time < now < end_time - datetime.timedelta(seconds=120):
-            target_price = get_target_price("KRW-VET", 0.2)
+        if start_time < now < end_time - datetime.timedelta(seconds=300):
+            target_price = get_target_price("KRW-VET", 0.5)
             ma15 = get_ma15("KRW-VET")
             current_price = get_current_price("KRW-VET")
             if target_price < current_price and ma15 < current_price:
@@ -58,7 +59,7 @@ while True:
                     upbit.buy_market_order("KRW-VET", krw*0.9995)
         else:
             vet = get_balance("VET")
-            if vet > 20:
+            if vet > 0.00008:
                 upbit.sell_market_order("KRW-VET", vet*0.9995)
         time.sleep(1)
     except Exception as e:
